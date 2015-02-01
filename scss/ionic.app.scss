@@ -27,7 +27,7 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
 		width: calc(100% - 50px) !important;
 	}
 	.menu-left{
-		width: calc(100% - 50px) !important;
+		width: 100% !important;
 	}
 }
 
@@ -35,6 +35,13 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
 	height: 50px;
 	line-height: 48px;
 	font-size: 1.4em;
+}
+
+.bar .title {
+	left: 48px;
+	right: 48px;
+	background: url('../img/noble-crown.png') no-repeat center 10px;
+	background-size: 100px;
 }
 .bar .button {
 	min-height: 35px;

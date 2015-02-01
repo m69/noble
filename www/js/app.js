@@ -1,4 +1,4 @@
-angular.module('noble', ['ionic', 'noble.controllers'])
+angular.module('noble', ['ionic', 'noble.controllers', 'noble.services'])
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -32,7 +32,52 @@ angular.module('noble', ['ionic', 'noble.controllers'])
         controller: 'NobleCtrl'
       }
     }
+  })
+
+  .state('app.favorites', {
+    url: "/favorites",
+    views: {
+      'menuContent': {
+        templateUrl: "templates/favorites.html",
+        controller: 'FavoritesCtrl'
+      }
+    }
+  })
+
+  .state('app.flagged', {
+    url: "/flagged",
+    views: {
+      'menuContent': {
+        templateUrl: "templates/flagged.html",
+        controller: 'FlaggedCtrl'
+      }
+    }
+  })
+
+  .state('app.history', {
+    url: "/history",
+    views: {
+      'menuContent': {
+        templateUrl: "templates/history.html",
+        controller: 'HistoryCtrl'
+      }
+    }
+  })
+
+  .state('app.settings', {
+    url: "/settings",
+    views: {
+      'menuContent': {
+        templateUrl: "templates/settings.html",
+        controller: 'SettingsCtrl'
+      }
+    }
   });
+
+
+
+
+
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/app/noble');
 });
