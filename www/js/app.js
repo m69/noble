@@ -27,9 +27,18 @@ angular.module('noble', ['ionic', 'noble.controllers', 'noble.services'])
   .state('app.noble', {
     url: "/noble",
     views: {
-      'menuContent': {
+      '@app': {
         templateUrl: "templates/noble.html",
         controller: 'NobleCtrl'
+      }
+    }
+  })
+  .state('app.noble.quest', {
+    url: "/:module",
+    views: {
+      '@app': {
+        templateUrl: "templates/quest.html",
+        controller: 'QuestCtrl'
       }
     }
   })
@@ -37,7 +46,7 @@ angular.module('noble', ['ionic', 'noble.controllers', 'noble.services'])
   .state('app.favorites', {
     url: "/favorites",
     views: {
-      'menuContent': {
+      '@app': {
         templateUrl: "templates/favorites.html",
         controller: 'FavoritesCtrl'
       }
@@ -47,7 +56,7 @@ angular.module('noble', ['ionic', 'noble.controllers', 'noble.services'])
   .state('app.flagged', {
     url: "/flagged",
     views: {
-      'menuContent': {
+      '@app': {
         templateUrl: "templates/flagged.html",
         controller: 'FlaggedCtrl'
       }
@@ -57,7 +66,7 @@ angular.module('noble', ['ionic', 'noble.controllers', 'noble.services'])
   .state('app.history', {
     url: "/history",
     views: {
-      'menuContent': {
+      '@app': {
         templateUrl: "templates/history.html",
         controller: 'HistoryCtrl'
       }
@@ -67,7 +76,7 @@ angular.module('noble', ['ionic', 'noble.controllers', 'noble.services'])
   .state('app.settings', {
     url: "/settings",
     views: {
-      'menuContent': {
+      '@app': {
         templateUrl: "templates/settings.html",
         controller: 'SettingsCtrl'
       }

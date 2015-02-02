@@ -1,7 +1,7 @@
 <ion-view>
   <ion-content class="noble-content">
     <div class="noble-hero">
-    	<p>Ah, honey, your first novel. Marty, you didn't fall asleep, did you? Yeah, but I never picked a fight in my entire life. Yeah, well history is gonna change. I'm gonna ram him.</p>
+    	<p>Marty, you didn't fall asleep, did you? Yeah, but I never picked a fight in my entire life. Yeah, well history is gonna change. I'm gonna ram him.</p>
     </div>
 	<div class="list list-inset">
 		<label class="item item-input">
@@ -11,19 +11,6 @@
 		<button class="button button-full button-assertive" ng-click="launchQuest(quest)">
   			{{message}}
 		</button>
-	</div>
-	<div class="values">
-		<ion-slide-box 
-			does-continue="true" 
-			autoplay="true" 
-			slide-interval="1000"
-			show-pager="false">
-			<ion-slide ng-repeat="value in values">
-				<div class="box">
-					<span>{{value.name}}</span>
-				</div>
-			</ion-slide>
-		</ion-slide-box>
 	</div>
   </ion-content>
 </ion-view>
