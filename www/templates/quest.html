@@ -1,7 +1,16 @@
-<ion-view>
-	<ion-header-bar class="bar-subheader quest-title">
-		{{module.name}} v{{module.version}}
-  	</ion-header-bar>
+<ion-view view-title="{{module.name}}@{{module.version}}">
+	<ion-nav-bar class="bar-assertive">
+		<ion-nav-back-button>
+		</ion-nav-back-button>
+		<div class="buttons primary-buttons">
+			<button class="button button-icon icon ion-share" ng-click="export()"></button>
+		</div>
+	</ion-nav-bar>
+
+	<!-- <ion-header-bar class="bar-subheader quest-title">
+		<div class="title">{{module.name}}@{{module.version}}</div>
+		<button class="button button-icon icon ion-share" ng-click="export()"></button>
+  	</ion-header-bar> -->
   <ion-content class="has-subheader">
 	<ion-list>
 		<ion-item ng-repeat="mod in modules">

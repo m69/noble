@@ -1,16 +1,23 @@
 <ion-view>
+	<ion-nav-title>
+		<img class="noble-crown" src="img/noble-crown.png">
+	</ion-nav-title>
   <ion-content class="noble-content">
-    <div class="noble-hero">
-    	<p>Marty, you didn't fall asleep, did you? Yeah, but I never picked a fight in my entire life. Yeah, well history is gonna change. I'm gonna ram him.</p>
-    </div>
-	<div class="list list-inset">
-		<label class="item item-input">
-			<i class="icon ion-search placeholder-icon"></i>
-			<input type="text" placeholder="node_module" ng-model="quest">
-		</label>
-		<button class="button button-full button-assertive" ng-click="launchQuest(quest)">
-  			{{message}}
-		</button>
+  	<div class="noble-wrapper">
+	    <div class="noble-hero">
+	    	<img class="noble-logo" src="img/noble-logo.png" />
+	    	<p>1no·ble adjective \ˈnō-bəl\
+			: impressive in size or appearance</p>
+	    </div>
+		<div class="list list-inset">
+			<label class="item item-input">
+				<i class="icon ion-search placeholder-icon"></i>
+				<input type="text" placeholder="node_module" ng-model="quest">
+			</label>
+			<button class="button button-full button-assertive" ng-click="launchQuest(quest)">
+	  			{{message}}
+			</button>
+		</div>
 	</div>
   </ion-content>
 </ion-view>

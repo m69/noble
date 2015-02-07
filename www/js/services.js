@@ -33,7 +33,7 @@ angular.module('noble.services', [])
 	return NodeModule;
 }])
 
-.factory('NpmService', ['$q', '$http', 'NodeModule', function($q, $http, NodeModule) {
+.factory('NpmService', ['$q', '$http', 'NodeModule', '$localstorage', function($q, $http, NodeModule, $localstorage) {
 
 	var tree = [];
 
@@ -47,8 +47,7 @@ angular.module('noble.services', [])
 
 				$http({
 					method: 'JSONP',
-					url: 'http://64.49.237.155:6900/' + query,
-					cache: true,
+					url: 'http://64.49.237.155:6900/' + query.toString().toLowerCase(),
 					params: {
 						version: version || 'latest',
 						callback: 'JSON_CALLBACK'
@@ -67,21 +66,97 @@ angular.module('noble.services', [])
 		};
 
 	var _getDependencies = function(module) {
-			var d = $q.defer();
+		var d = $q.defer();
 
-			angular.forEach(module.dependencies, function(value, key) {
-				 _getNodeModule(key, value.toString().replace(/\^/g,''))
-					.then(function(result) {
-						tree.push(result);
-						_getDependencies(result);
-					});
-			});
+		angular.forEach(module.dependencies, function(value, key) {
+			 _getNodeModule(key, value.toString().replace(/\^/g,''))
+				.then(function(result) {
+					tree.push(result);
+					_getDependencies(result);
+				});
+		});
 
-			return tree;
-		}
+		return tree;
+	};
 
 	return {
 		getNodeModule: _getNodeModule,
 		getDependencies: _getDependencies
 	};
+}])
+
+.factory('HistoryService', ['$localstorage', '$q', function($localstorage, $q) {
+	var _saveHistory = function(module) {
+		var history = $localstorage.getObject('noble-history');
+		var newHistory = [];
+		if(history) {
+			angular.forEach(history, function(value, key) {
+				newHistory.push(value);
+			});
+		}
+
+		newHistory.push(module);
+
+		if($localstorage.setObject('noble-history', newHistory)){
+			return true;
+		}
+
+		return false;
+	};
+
+	var _getHistory = function() {
+		var d = $q.defer();
+		var history = $localstorage.getObject('noble-history');
+
+		if(history) {
+			d.resolve(history);
+		}else{
+			d.reject('No Items in History');
+		}
+
+		return d.promise;
+	};
+
+	var _getModule = function(id) {
+		var d = $q.defer();
+		var history = $localstorage.getObject('noble-history');
+		var module;
+
+		angular.forEach(history, function(value, key) {
+			if(value.id === id){
+				module = value;
+			}
+		});
+
+		if(module) {
+			d.resolve(module);
+		}else{
+			d.reject('Not Found');
+		}
+
+		return d.promise;
+	};
+
+	return {
+		getHistory: _getHistory,
+		saveHistory: _saveHistory,
+		getModule: _getModule
+	}
+}])
+
+.factory('$localstorage', ['$window', function($window) {
+  return {
+    set: function(key, value) {
+      $window.localStorage[key] = value;
+    },
+    get: function(key, defaultValue) {
+      return $window.localStorage[key] || defaultValue;
+    },
+    setObject: function(key, value) {
+      $window.localStorage[key] = JSON.stringify(value);
+    },
+    getObject: function(key) {
+      return JSON.parse($window.localStorage[key] || '{}');
+    }
+  }
 }]);

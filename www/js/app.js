@@ -14,9 +14,12 @@ angular.module('noble', ['ionic', 'noble.controllers', 'noble.services'])
   });
 })
 
-.config(function($stateProvider, $urlRouterProvider) {
-  $stateProvider
+.config(function($stateProvider, $urlRouterProvider, $ionicConfigProvider) {
+  
+  // remove back button text completely
+  $ionicConfigProvider.backButton.previousTitleText(false).text(' ');
 
+  $stateProvider
   .state('app', {
     url: "/app",
     abstract: true,
@@ -43,16 +46,6 @@ angular.module('noble', ['ionic', 'noble.controllers', 'noble.services'])
     }
   })
 
-  .state('app.favorites', {
-    url: "/favorites",
-    views: {
-      '@app': {
-        templateUrl: "templates/favorites.html",
-        controller: 'FavoritesCtrl'
-      }
-    }
-  })
-
   .state('app.flagged', {
     url: "/flagged",
     views: {
@@ -69,6 +62,15 @@ angular.module('noble', ['ionic', 'noble.controllers', 'noble.services'])
       '@app': {
         templateUrl: "templates/history.html",
         controller: 'HistoryCtrl'
+      }
+    }
+  })
+  .state('app.history.module', {
+    url: "/:id",
+    views: {
+      '@app': {
+        templateUrl: "templates/module.html",
+        controller: 'ModuleCtrl'
       }
     }
   })

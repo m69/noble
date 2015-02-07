@@ -1,0 +1,34 @@
+<ion-view>
+  <ion-content>
+	<div class="list card">
+
+	  <div class="item">
+		<h2>{{module.name}}</h2>
+		<p>v{{module.version}}  -  {{module.author.name}}</p>
+	  </div>
+
+	  <div class="item item-body">
+		<p>{{module.description}}</p>
+	  </div>
+
+	  <div class="item tabs tabs-secondary tabs-icon-left">
+		<a class="tab-item" ng-if="module.homepage" href="#" ng-click="launchBrowser(module.homepage)">
+		  <i class="icon ion-earth"></i>
+		  Homepage
+		</a>
+		<a class="tab-item" ng-href="mailto:{{module.author.email}}">
+		  <i class="icon ion-email"></i>
+		  Email
+		</a>
+		<a class="tab-item" href="#" ng-click="launchBrowser(module.bugs.url)">
+		  <i class="icon ion-bug"></i>
+		  Bugs
+		</a>
+	  </div>
+
+	</div>
+	<div class="padding">
+		<button class="button button-full button-assertive" ng-click="launchQuest({module: module.name})">Resolve Peasants</button>
+	</div>
+  </ion-content>
+</ion-view>
