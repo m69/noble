@@ -36,22 +36,21 @@ angular.module('noble', ['ionic', 'noble.controllers', 'noble.services'])
       }
     }
   })
-  .state('app.noble.quest', {
+  .state('app.noble.module', {
     url: "/:module",
+    views: {
+      '@app': {
+        templateUrl: "templates/module.html",
+        controller: 'ModuleCtrl'
+      }
+    }
+  })
+  .state('app.noble.quest', {
+    url: "/:module/:version",
     views: {
       '@app': {
         templateUrl: "templates/quest.html",
         controller: 'QuestCtrl'
-      }
-    }
-  })
-
-  .state('app.flagged', {
-    url: "/flagged",
-    views: {
-      '@app': {
-        templateUrl: "templates/flagged.html",
-        controller: 'FlaggedCtrl'
       }
     }
   })
@@ -66,7 +65,7 @@ angular.module('noble', ['ionic', 'noble.controllers', 'noble.services'])
     }
   })
   .state('app.history.module', {
-    url: "/:id",
+    url: "/:module",
     views: {
       '@app': {
         templateUrl: "templates/module.html",

@@ -1,8 +1,11 @@
 <ion-view>
+	<ion-nav-title>
+		<img class="noble-crown" src="img/noble-crown.png">
+	</ion-nav-title>
   <ion-content>
 	<ion-list can-swipe="listCanSwipe">
-		<ion-item ng-repeat="mod in history" ui-sref=".module({id: mod.id})">
-			{{mod.name}} : {{mod.version}} : {{mod.license}}
+		<ion-item ng-repeat="mod in history" ui-sref=".module({module: mod.name})">
+			{{mod.name}} : {{mod.version}}
 			<ion-delete-button class="ion-minus-circled"></ion-delete-button>
 		</ion-item>
 	</ion-list>

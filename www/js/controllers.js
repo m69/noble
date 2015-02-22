@@ -34,37 +34,37 @@ angular.module('noble.controllers', [])
 		}
 	};
 
+	$scope.searchModule = function(module) {
+		if(module !== null || module !== undefined || module !== '') {
+			var params = {
+				module: module
+			}
+			$state.go('app.noble.module', params);
+		}
+	};
+
 })
 
-.controller('QuestCtrl', function($scope, $state, $stateParams, $ionicActionSheet, NpmService, HistoryService) {
+.controller('QuestCtrl', function($scope, $state, $stateParams, $ionicActionSheet, $ionicNavBarDelegate, $ionicLoading, NpmService, HistoryService) {
 	
 	$scope.$on('$ionicView.beforeEnter', function() {
-		$scope.getModule($stateParams.module);
+		$ionicLoading.show({
+			template: 'Wise men do not <br>make demands of Kings.'
+		})
+		$scope.module = {};
+		$scope.module.name = $stateParams.module;
+		$scope.module.version = $stateParams.version;
 	});
 
-	$scope.getModule = function(module) {
-		NpmService.getNodeModule(module)
-			.then(function(result) {
-				$scope.module = result;
-				$scope.getDependencies($scope.module);
-				$scope.saveHistory(result);
-			});
+	$scope.$on('$ionicView.enter', function() {
+		$scope.startQuest($stateParams.module);
+	});
+
+	$scope.startQuest = function(module) {
+		$scope.modules = NpmService.startQuest(module);
+		$scope.count = $scope.modules.length;
+		$ionicLoading.hide();
 	};
-
-	$scope.getDependencies = function(module) {
-		$scope.modules = NpmService.getDependencies(module);
-	};
-
-	$scope.export = function(module) {
-		// export module
-	};
-
-	$scope.saveHistory = function(module) {
-		HistoryService.saveHistory(module);
-	}
-})
-
-.controller('FlaggedCtrl', function($scope) {
 
 })
 
@@ -83,16 +83,17 @@ angular.module('noble.controllers', [])
 
 })
 
-.controller('ModuleCtrl', function($scope, $state, $stateParams, HistoryService) {
+.controller('ModuleCtrl', function($scope, $state, $stateParams, NpmService) {
 	$scope.$on('$ionicView.beforeEnter', function() {
-		$scope.getModule($stateParams.id);
+		//$scope.getModule($stateParams.id);
+		$scope.getModule($stateParams.module);
 	});
 
-	$scope.getModule = function(id) {
-		HistoryService.getModule(id)
-		.then(function(result) {
-			$scope.module = result;
-		});
+	$scope.getModule = function(module) {
+		NpmService.getNodeModule(module)
+			.then(function(result) {
+				$scope.module = result;
+			});
 	};
 
 	$scope.launchQuest = function(params) {

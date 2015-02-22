@@ -33,18 +33,23 @@ angular.module('noble.services', [])
 	return NodeModule;
 }])
 
-.factory('NpmService', ['$q', '$http', 'NodeModule', '$localstorage', function($q, $http, NodeModule, $localstorage) {
+.factory('NpmService', ['$q', '$http', 'NodeModule', 'HistoryService', function($q, $http, NodeModule, HistoryService) {
 
 	var tree = [];
 
 	var _getNodeModule = function(query, version) {
 
-			var d = $q.defer();
+		var d = $q.defer();
 
-			if(!query) {
-				d.reject('No Query');
+		if(!query) {
+			d.reject('No Query');
+		}else{
+
+			var module = HistoryService.getModule(query);
+
+			if(module) {
+				d.resolve(module);
 			}else{
-
 				$http({
 					method: 'JSONP',
 					url: 'http://64.49.237.155:6900/' + query.toString().toLowerCase(),
@@ -55,21 +60,55 @@ angular.module('noble.services', [])
 				})
 				.success(function(data) {
 					var nodeModule = new NodeModule(data);
+
+					HistoryService.saveHistory(nodeModule);
+
 					d.resolve(nodeModule);
 				})
 				.error(function(reason) {
 					d.reject(reason);
 				});
 			}
+		}
 
-			return d.promise;
-		};
+		return d.promise;
+	};
+
+	var _getDependency = function(query, version) {
+
+		var d = $q.defer();
+
+		if(!query) {
+			d.reject('No Query');
+		}else{
+			
+			$http({
+				method: 'JSONP',
+				url: 'http://64.49.237.155:6900/' + query.toString().toLowerCase(),
+				cache: true,
+				params: {
+					version: version || 'latest',
+					callback: 'JSON_CALLBACK'
+				}
+			})
+			.success(function(data) {
+				var nodeModule = new NodeModule(data);
+
+				d.resolve(nodeModule);
+			})
+			.error(function(reason) {
+				d.reject(reason);
+			});
+		}
+
+		return d.promise;
+	};	
 
 	var _getDependencies = function(module) {
 		var d = $q.defer();
 
 		angular.forEach(module.dependencies, function(value, key) {
-			 _getNodeModule(key, value.toString().replace(/\^/g,''))
+			 _getDependency(key, value.toString().replace(/\^/g,''))
 				.then(function(result) {
 					tree.push(result);
 					_getDependencies(result);
@@ -79,9 +118,16 @@ angular.module('noble.services', [])
 		return tree;
 	};
 
+	var _startQuest = function(moduleName) {
+		tree = [];
+		return _getDependencies(HistoryService.getModule(moduleName));
+	}
+
 	return {
 		getNodeModule: _getNodeModule,
-		getDependencies: _getDependencies
+		getDependency: _getDependency,
+		getDependencies: _getDependencies,
+		startQuest: _startQuest
 	};
 }])
 
@@ -117,24 +163,18 @@ angular.module('noble.services', [])
 		return d.promise;
 	};
 
-	var _getModule = function(id) {
-		var d = $q.defer();
+	var _getModule = function(name) {
+
 		var history = $localstorage.getObject('noble-history');
-		var module;
+		var module = false
 
 		angular.forEach(history, function(value, key) {
-			if(value.id === id){
+			if(value.name === name){
 				module = value;
 			}
 		});
 
-		if(module) {
-			d.resolve(module);
-		}else{
-			d.reject('Not Found');
-		}
-
-		return d.promise;
+		return module;
 	};
 
 	return {

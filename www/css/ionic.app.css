@@ -7041,20 +7041,26 @@ a.button {
 .bar .button {
   min-height: 35px; }
 
-.nav-bar-title {
-  display: inline-block;
-  padding-top: 7px; }
-
 .noble-crown {
   width: 100px;
-  height: auto; }
+  height: auto;
+  margin-top: 7px; }
+
+.menu .item-complex .item-content {
+  padding-top: 20%;
+  padding-bottom: 20%; }
+.menu .noble-plug {
+  text-align: center;
+  padding: 20px 10px;
+  font-size: 11px;
+  color: #999; }
 
 .noble-content .scroll {
   height: 100%;
   width: 100%; }
 
 .noble-wrapper {
-  padding-top: 25%; }
+  padding-top: 20%; }
 
 .noble-hero {
   width: 100%;
