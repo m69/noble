@@ -25,14 +25,14 @@ angular.module('noble.controllers', [])
 		$scope.quest = '';
 	});
 
-	$scope.launchQuest = function(quest) {
-		if(quest !== null || quest !== undefined || quest !== '') {
-			var params = {
-				module: quest
-			}
-			$state.go('app.noble.quest', params);
-		}
-	};
+	// $scope.launchQuest = function(quest) {
+	// 	if(quest !== null || quest !== undefined || quest !== '') {
+	// 		var params = {
+	// 			module: quest
+	// 		}
+	// 		$state.go('app.noble.quest', params);
+	// 	}
+	// };
 
 	$scope.searchModule = function(module) {
 		if(module !== null || module !== undefined || module !== '') {
@@ -45,26 +45,114 @@ angular.module('noble.controllers', [])
 
 })
 
-.controller('QuestCtrl', function($scope, $state, $stateParams, $ionicActionSheet, $ionicNavBarDelegate, $ionicLoading, NpmService, HistoryService) {
+.controller('ModuleCtrl', function($scope, $state, $stateParams, $ionicLoading, $ionicPopup, NobileServer) {
+	$scope.$on('$ionicView.beforeEnter', function() {
+		$ionicLoading.show({
+			template: 'Sending a rider...'
+		});
+		$scope.getModule($stateParams.module);
+	});
+
+	$scope.getModule = function(module) {
+		NobileServer.getNodeModule(module)
+		.then(function(result) {
+			$scope.module = result;
+		})
+		.catch(function(error) {
+			$ionicLoading.hide();
+			$state.go('^');
+		})
+		.finally(function(result) {
+			$ionicLoading.hide();
+		});
+	};
+
+	$scope.launchQuest = function(params) {
+		$state.go('app.noble.quest', params);
+	};
+
+	$scope.launchBrowser = function(url) {
+		window.open(url,'_blank');
+	};
+})
+
+.controller('QuestCtrl', function($scope, $state, $stateParams, $ionicActionSheet, $ionicNavBarDelegate, $ionicLoading, $ionicPopup, NobileServer, HistoryService) {
 	
 	$scope.$on('$ionicView.beforeEnter', function() {
 		$ionicLoading.show({
-			template: 'Wise men do not <br>make demands of Kings.'
-		})
+			template: 'Wise men do not <br>make demands of Kings...'
+		});
 		$scope.module = {};
 		$scope.module.name = $stateParams.module;
 		$scope.module.version = $stateParams.version;
 	});
 
 	$scope.$on('$ionicView.enter', function() {
-		$scope.startQuest($stateParams.module);
+		$scope.getModules($stateParams.module);
 	});
 
 	$scope.startQuest = function(module) {
-		$scope.modules = NpmService.startQuest(module);
+		$scope.modules = NobileServer.startQuest(module);
 		$scope.count = $scope.modules.length;
 		$ionicLoading.hide();
 	};
+
+	$scope.getModules = function(module) {
+		NobileServer.getNodeModuleDependencies(module)
+		.then(function(result) {
+			$scope.modules = result.modules;
+			$scope.count = result.stats.resolved;
+			$scope.module.report = result.report;
+		})
+		.finally(function(result) {
+			$ionicLoading.hide();
+		});
+	};
+
+	$scope.actions = function() {
+
+		var actionSheet = $ionicActionSheet.show({
+			buttons: [
+				{ text: 'Export to Excel' },
+				{ text: 'Save Results' }
+			],
+			titleText: 'Quickly Now',
+			cancelText: 'Cancel',
+			cancel: function() {
+				actionSheet();
+			},
+			buttonClicked: function(index) {
+				if(index === 0) {
+
+					NobileServer.getReport($scope.module.report)
+					.then(function(result) {
+						console.log(result);
+
+						$ionicPopup.show({
+							title: 'Report Downloaded',
+							subTitle: 'Would you like to view the report now?',
+							buttons: [
+								{ text: 'Cancel' },
+								{
+									text: 'Open',
+									type: 'button-positive',
+									onTap: function(e) {
+										window.open(result.toURL(),'_blank');
+									}
+								}
+							]
+						});
+					})
+					.finally(function(result) {
+						
+					});
+				}else if(index === 1) {
+					console.log('save report');
+				}
+				return true;
+			}
+		});
+	}
 
 })
 
@@ -83,26 +171,19 @@ angular.module('noble.controllers', [])
 
 })
 
-.controller('ModuleCtrl', function($scope, $state, $stateParams, NpmService) {
+.controller('ReportsCtrl', function($scope, HistoryService) {
+
 	$scope.$on('$ionicView.beforeEnter', function() {
-		//$scope.getModule($stateParams.id);
-		$scope.getModule($stateParams.module);
+		$scope.getReports();
 	});
 
-	$scope.getModule = function(module) {
-		NpmService.getNodeModule(module)
-			.then(function(result) {
-				$scope.module = result;
-			});
+	$scope.getReports = function() {
+		HistoryService.getReports()
+		.then(function(result) {
+			$scope.reports = result;
+		});
 	};
 
-	$scope.launchQuest = function(params) {
-		$state.go('app.noble.quest', params);
-	};
-
-	$scope.launchBrowser = function(url) {
-		window.open(url,'_blank');
-	};
 })
 
 .controller('SettingsCtrl', function($scope) {

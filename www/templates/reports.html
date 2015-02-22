@@ -4,8 +4,8 @@
 	</ion-nav-title>
   <ion-content>
 	<ion-list can-swipe="listCanSwipe">
-		<ion-item ng-repeat="mod in history" ui-sref=".module({module: mod.name})">
-			{{mod.name}}@{{mod.version}}
+		<ion-item ng-repeat="report in reports">
+			{{report.name}}
 			<ion-delete-button class="ion-minus-circled"></ion-delete-button>
 		</ion-item>
 	</ion-list>
