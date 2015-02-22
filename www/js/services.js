@@ -68,7 +68,7 @@ angular.module('noble.services', [])
 
 .factory('NobileServer', ['$q', '$http', '$localstorage', 'NodeModule', 'HistoryService', function($q, $http, $localstorage, NodeModule, HistoryService) {
 
-	var nobleServerUrl = 'http://localhost:6901/';
+	var nobleServerUrl = 'http://64.49.237.155:6901/';
 	var tree = [];
 
 	var _getNodeModule = function(query, version) {
