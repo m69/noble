@@ -79,9 +79,6 @@ angular.module('noble.controllers', [])
 .controller('QuestCtrl', function($scope, $state, $stateParams, $ionicActionSheet, $ionicNavBarDelegate, $ionicLoading, $ionicPopup, NobileServer, HistoryService) {
 	
 	$scope.$on('$ionicView.beforeEnter', function() {
-		$ionicLoading.show({
-			template: 'Wise men do not <br>make demands of Kings...'
-		});
 		$scope.module = {};
 		$scope.module.name = $stateParams.module;
 		$scope.module.version = $stateParams.version;
@@ -98,6 +95,11 @@ angular.module('noble.controllers', [])
 	};
 
 	$scope.getModules = function(module) {
+
+		$ionicLoading.show({
+			template: 'Wise men do not <br>make demands of Kings...'
+		});
+
 		NobileServer.getNodeModuleDependencies(module)
 		.then(function(result) {
 			$scope.modules = result.modules;
@@ -113,8 +115,8 @@ angular.module('noble.controllers', [])
 
 		var actionSheet = $ionicActionSheet.show({
 			buttons: [
-				{ text: 'Export to Excel' },
-				{ text: 'Save Results' }
+				{ text: 'Download Report' },
+				{ text: 'Refresh Results' }
 			],
 			titleText: 'Quickly Now',
 			cancelText: 'Cancel',
@@ -130,14 +132,14 @@ angular.module('noble.controllers', [])
 
 						$ionicPopup.show({
 							title: 'Report Downloaded',
-							subTitle: 'Would you like to view the report now?',
+							subTitle: 'Would you like to view reports?',
 							buttons: [
 								{ text: 'Cancel' },
 								{
 									text: 'Open',
 									type: 'button-positive',
 									onTap: function(e) {
-										window.open(result.toURL(),'_blank');
+										$state.go('app.reports');
 									}
 								}
 							]
@@ -147,7 +149,7 @@ angular.module('noble.controllers', [])
 						
 					});
 				}else if(index === 1) {
-					console.log('save report');
+					$state.go($state.current, {}, {reload: true});
 				}
 				return true;
 			}
@@ -171,7 +173,7 @@ angular.module('noble.controllers', [])
 
 })
 
-.controller('ReportsCtrl', function($scope, HistoryService) {
+.controller('ReportsCtrl', function($scope, HistoryService, EmailService) {
 
 	$scope.$on('$ionicView.beforeEnter', function() {
 		$scope.getReports();
@@ -182,6 +184,10 @@ angular.module('noble.controllers', [])
 		.then(function(result) {
 			$scope.reports = result;
 		});
+	};
+
+	$scope.sendEmail = function(report) {
+		EmailService.sendEmail(report);
 	};
 
 })

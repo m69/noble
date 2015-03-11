@@ -2,12 +2,14 @@
 	<ion-nav-title>
 		<img class="noble-crown" src="img/noble-crown.png">
 	</ion-nav-title>
-  <ion-content>
-	<ion-list can-swipe="listCanSwipe">
+  <ion-content class="noble-list">
+	<ion-list can-swipe="true" 
+			  ng-if="history.length > 0">
 		<ion-item ng-repeat="mod in history" ui-sref=".module({module: mod.name})">
 			{{mod.name}}@{{mod.version}}
-			<ion-delete-button class="ion-minus-circled"></ion-delete-button>
+			<ion-option-button class="button-info button-dark" ng-click="delete(mod.name, mod.version)">Delete</ion-option-button>
 		</ion-item>
 	</ion-list>
+	<div class="empty-list" ng-if="!history || history.length === 0">Launch a quest to make history.</div>
   </ion-content>
 </ion-view>

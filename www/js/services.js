@@ -351,11 +351,90 @@ angular.module('noble.services', [])
 		return d.promise;
 	}
 
+	var _getReport = function(name) {
+		var reportsKey = 'noble-reports';
+
+		var reports = $localstorage.getObject(reportsKey);
+		var report;
+
+		angular.forEach(reports, function(value, key){
+			if(value.name === name) {
+				report = value;
+			};
+		});
+
+		return report || false;
+	}
+
 	return {
 		getHistory: _getHistory,
 		saveHistory: _saveHistory,
 		getModule: _getModule,
-		getReports: _getReports
+		getReports: _getReports,
+		getReport: _getReport
+	}
+}])
+
+.factory('EmailService', ['$window', '$localstorage', 'HistoryService', function($window, $localstorage, HistoryService){
+	
+	var _sendEmail = function(name) {
+
+		var report = HistoryService.getReport(name);
+
+		if(report && cordova.plugins) {
+			cordova.plugins.email.isAvailable(function (isAvailable) {
+
+			window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
+	    	window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function onInitFs(fs) {
+
+	    		fs.root.getFile(name, {}, function(fileEntry) {
+
+	    			var attachments = [];
+					attachments.push(fileEntry.toURL());
+						
+					cordova.plugins.email.open({
+						attachments: attachments,
+						subject: 'Noble Reports',
+						body: '###Noble###',
+						isHtml: true
+						});
+					});
+
+				  }, function errorHandler(e){console.log(e)});
+
+	    	}, function errorHandler(e) {
+	    		
+	    	var msg = '';
+
+			  switch (e.code) {
+			    case FileError.QUOTA_EXCEEDED_ERR:
+			      msg = 'QUOTA_EXCEEDED_ERR';
+			      break;
+			    case FileError.NOT_FOUND_ERR:
+			      msg = 'NOT_FOUND_ERR';
+			      break;
+			    case FileError.SECURITY_ERR:
+			      msg = 'SECURITY_ERR';
+			      break;
+			    case FileError.INVALID_MODIFICATION_ERR:
+			      msg = 'INVALID_MODIFICATION_ERR';
+			      break;
+			    case FileError.INVALID_STATE_ERR:
+			      msg = 'INVALID_STATE_ERR';
+			      break;
+			    default:
+			      msg = 'Unknown Error';
+			      break;
+			  };
+
+			  console.log('Error: ' + msg);
+	    	});
+
+		}
+	};
+
+	return {
+		sendEmail: _sendEmail
 	}
 }])
 
@@ -371,7 +450,7 @@ angular.module('noble.services', [])
       $window.localStorage[key] = JSON.stringify(value);
     },
     getObject: function(key) {
-      return JSON.parse($window.localStorage[key] || '{}');
+      return JSON.parse($window.localStorage[key] || null);
     }
   }
 }]);
