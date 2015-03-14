@@ -25,15 +25,6 @@ angular.module('noble.controllers', [])
 		$scope.quest = '';
 	});
 
-	// $scope.launchQuest = function(quest) {
-	// 	if(quest !== null || quest !== undefined || quest !== '') {
-	// 		var params = {
-	// 			module: quest
-	// 		}
-	// 		$state.go('app.noble.quest', params);
-	// 	}
-	// };
-
 	$scope.searchModule = function(module) {
 		if(module !== null || module !== undefined || module !== '') {
 			var params = {
@@ -48,7 +39,7 @@ angular.module('noble.controllers', [])
 .controller('ModuleCtrl', function($scope, $state, $stateParams, $ionicLoading, $ionicPopup, NobileServer) {
 	$scope.$on('$ionicView.beforeEnter', function() {
 		$ionicLoading.show({
-			template: 'Sending a rider...'
+			template: 'Standby...'
 		});
 		$scope.getModule($stateParams.module);
 	});
@@ -76,8 +67,20 @@ angular.module('noble.controllers', [])
 	};
 })
 
-.controller('QuestCtrl', function($scope, $state, $stateParams, $ionicActionSheet, $ionicNavBarDelegate, $ionicLoading, $ionicPopup, NobileServer, HistoryService) {
-	
+.controller('QuestCtrl', function($scope, $state, $stateParams, $ionicActionSheet, $ionicNavBarDelegate, $ionicLoading, $ionicPopup, $ionicModal, NobileServer, HistoryService) {
+	$scope.closeModal = function() {
+		$scope.modal.hide();
+	};
+
+	$scope.modal;
+	$ionicModal.fromTemplateUrl('templates/quest-modal.html', {
+		scope: $scope,
+		animation: 'slide-in-up'
+	}).then(function(modal) {
+		$scope.modal = modal;
+	});
+
+
 	$scope.$on('$ionicView.beforeEnter', function() {
 		$scope.module = {};
 		$scope.module.name = $stateParams.module;
@@ -88,14 +91,17 @@ angular.module('noble.controllers', [])
 		$scope.getModules($stateParams.module);
 	});
 
+	 //Cleanup the modal when we're done with it!
+	$scope.$on('$destroy', function() {
+		$scope.modal.remove();
+	});
+
 	$scope.startQuest = function(module) {
 		$scope.modules = NobileServer.startQuest(module);
 		$scope.count = $scope.modules.length;
-		$ionicLoading.hide();
 	};
 
 	$scope.getModules = function(module) {
-
 		$ionicLoading.show({
 			template: 'Wise men do not <br>make demands of Kings...'
 		});
@@ -104,10 +110,12 @@ angular.module('noble.controllers', [])
 		.then(function(result) {
 			$scope.modules = result.modules;
 			$scope.count = result.stats.resolved;
+			$scope.stats = result.stats;
 			$scope.module.report = result.report;
 		})
 		.finally(function(result) {
 			$ionicLoading.hide();
+			$scope.modal.show();
 		});
 	};
 

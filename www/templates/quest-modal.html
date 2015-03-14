@@ -1,0 +1,23 @@
+<ion-modal-view>
+	<ion-content class="noble-content">
+		<h1>Quest Complete</h1>
+		<div class="stat">
+			<span class="number">{{stats.resolved}}</span>
+			<span class="name">Modules</span>
+		</div>
+		<div class="stat">
+			<span class="number">{{stats.securityHits}}</span>
+			<span class="name">Vulnerabilities</span>
+		</div>
+		<div class="stat">
+			<span class="number">{{stats.totalTime}}</span>
+			<span class="name">Total Time</span>
+		</div>
+		<div class="stat">
+			<span class="name mod">{{stats.mod}}</span>
+		</div>
+		<button class="button button-full button-assertive" ng-click="closeModal()">
+	  		View Results
+		</button>
+	</ion-content>
+</ion-modal-view>

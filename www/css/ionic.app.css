@@ -7671,3 +7671,33 @@ a.button {
 .item .item-content.activated {
   background-color: #CD3632;
   color: #fff; }
+
+.modal {
+  background-color: #202020; }
+
+.modal .noble-content {
+  padding: 50px 20px 20px 20px;
+  color: #FFF; }
+
+.modal .noble-content h1 {
+  text-align: center;
+  color: #CD3632;
+  margin-bottom: 20px; }
+
+.modal .stat {
+  text-align: center;
+  margin-bottom: 20px; }
+
+.modal .stat .number {
+  font-size: 4em;
+  display: block;
+  padding: 20px; }
+
+.modal .stat .name {
+  font-weight: bold; }
+
+.modal .stat .name.mod {
+  font-size: 2em; }
+
+.modal .button {
+  margin-top: 40px; }

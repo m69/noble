@@ -411,42 +411,41 @@ angular.module('noble.services', [])
 
 		var reports = $localstorage.getObject(reportsKey);
 		var newReports = [];
-		var removed = false;
+		var file = false;
 
 		angular.forEach(reports, function(value, key){
 			if(value.name === name) {
-				
-				if(cordova.plugins) {
-
-					window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
-			    	window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function onInitFs(fs) {
-
-			    		console.log('got file system');
-
-			    		fs.root.getFile(name, {}, function(fileEntry) {
-
-			    			console.log('got file: ' + fileEntry);
-
-			    			fileEntry.remove(function(success){
-			    				removed = true;
-			    				d.resolve(newReports);
-			    			},function errorHandler(e){
-			    				d.reject(e);
-			    			});
-
-						  },function errorHandler(e){
-			    				d.reject(e);
-			    		});
-
-			    	},function errorHandler(e){
-	    				d.reject(e);
-	    			});
-				}
-
+				console.log('found: ' + name);
+				file = true;
 			}else{
+				console.log('pushing: ' + value.name);
 				newReports.push(value);
 			}
 		});
+
+		if(file && cordova.plugins) {
+			window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
+	    	window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function onInitFs(fs) {
+	    		console.log('onInitFs');
+	    		console.log(name);
+	    		fs.root.getFile(name, {}, function(fileEntry) {
+	    			console.log('fileEntry');
+	    			fileEntry.remove(function(success){
+	    				console.log('removed');
+	    				$localstorage.setObject(reportsKey, newReports);
+	    				d.resolve(newReports);
+	    			},function errorHandler(e){
+	    				d.reject(e);
+	    			});
+
+				  },function errorHandler(e){
+	    				d.reject(e);
+	    		});
+
+	    	},function errorHandler(e){
+				d.reject(e);
+			});
+		}
 
 		return d.promise;
 	};
