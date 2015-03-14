@@ -335,6 +335,44 @@ angular.module('noble.services', [])
 		return module;
 	};
 
+	var _deleteModule = function(module) {
+
+		var d = $q.defer();
+
+		var history = $localstorage.getObject(nobleStorageKey);
+		var newHistory = [];
+
+		if(history) {
+			angular.forEach(history, function(value, key) {
+				if(value.name.toString() !== module.name.toString() && value.version.toString() !== module.version.toString()){
+					newHistory.push(value);
+				}
+			});
+
+			$localstorage.setObject(nobleStorageKey, newHistory);
+			d.resolve(newHistory);
+		}else{
+			d.reject(false);
+		}
+
+		return d.promise;
+	};
+
+	var _clearHistory = function() {
+
+		var d = $q.defer();
+
+		$localstorage.setObject(nobleStorageKey, []);
+
+		if($localstorage.getObject(nobleStorageKey).length === 0) {
+			d.resolve(true);
+		}else{
+			d.reject(false);
+		}
+
+		return d.promise;
+	};
+
 	var _getReports = function() {
 		var reportsKey = 'noble-reports';
 
@@ -349,7 +387,7 @@ angular.module('noble.services', [])
 		}
 
 		return d.promise;
-	}
+	};
 
 	var _getReport = function(name) {
 		var reportsKey = 'noble-reports';
@@ -364,14 +402,64 @@ angular.module('noble.services', [])
 		});
 
 		return report || false;
-	}
+	};
+
+	var _deleteReport = function(name) {
+		var reportsKey = 'noble-reports';
+
+		var d = $q.defer();
+
+		var reports = $localstorage.getObject(reportsKey);
+		var newReports = [];
+		var removed = false;
+
+		angular.forEach(reports, function(value, key){
+			if(value.name === name) {
+				
+				if(cordova.plugins) {
+
+					window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
+			    	window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function onInitFs(fs) {
+
+			    		console.log('got file system');
+
+			    		fs.root.getFile(name, {}, function(fileEntry) {
+
+			    			console.log('got file: ' + fileEntry);
+
+			    			fileEntry.remove(function(success){
+			    				removed = true;
+			    				d.resolve(newReports);
+			    			},function errorHandler(e){
+			    				d.reject(e);
+			    			});
+
+						  },function errorHandler(e){
+			    				d.reject(e);
+			    		});
+
+			    	},function errorHandler(e){
+	    				d.reject(e);
+	    			});
+				}
+
+			}else{
+				newReports.push(value);
+			}
+		});
+
+		return d.promise;
+	};
 
 	return {
 		getHistory: _getHistory,
 		saveHistory: _saveHistory,
 		getModule: _getModule,
+		deleteModule: _deleteModule,
+		clearHistory: _clearHistory,
 		getReports: _getReports,
-		getReport: _getReport
+		getReport: _getReport,
+		deleteReport: _deleteReport
 	}
 }])
 
@@ -393,10 +481,10 @@ angular.module('noble.services', [])
 					attachments.push(fileEntry.toURL());
 						
 					cordova.plugins.email.open({
-						attachments: attachments,
-						subject: 'Noble Reports',
-						body: '###Noble###',
-						isHtml: true
+							attachments: attachments,
+							subject: 'Noble Reports',
+							body: '###Noble###',
+							isHtml: true
 						});
 					});
 

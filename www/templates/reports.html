@@ -3,10 +3,10 @@
 		<img class="noble-crown" src="img/noble-crown.png">
 	</ion-nav-title>
   <ion-content>
-	<ion-list can-swipe="listCanSwipe" ng-if="reports.length > 0">
+	<ion-list can-swipe="true" ng-if="reports.length > 0">
 		<ion-item ng-repeat="report in reports" ng-click="sendEmail(report.name)"->
 			{{report.name}}
-			<ion-option-button class="button-info button-dark" ng-click="delete(mod._id)">Delete</ion-option-button>
+			<ion-option-button class="button-info button-dark" ng-click="deleteItem(report.name)">Delete</ion-option-button>
 		</ion-item>
 	</ion-list>
 	<div class="empty-list" ng-if="!reports || reports.length === 0">Reports are earned.</div>

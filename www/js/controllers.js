@@ -171,6 +171,15 @@ angular.module('noble.controllers', [])
 		});
 	};
 
+	$scope.deleteItem = function(module) {
+		HistoryService.deleteModule(module)
+		.then(function(result) {
+			if(result) {
+				$scope.history = result;
+			}
+		});
+	};
+
 })
 
 .controller('ReportsCtrl', function($scope, HistoryService, EmailService) {
@@ -188,6 +197,15 @@ angular.module('noble.controllers', [])
 
 	$scope.sendEmail = function(report) {
 		EmailService.sendEmail(report);
+	};
+
+	$scope.deleteItem = function(module) {
+		HistoryService.deleteReport(module)
+		.then(function(result) {
+			if(result) {
+				$scope.reports = result;
+			}
+		});
 	};
 
 })

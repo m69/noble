@@ -7,7 +7,7 @@
 			  ng-if="history.length > 0">
 		<ion-item ng-repeat="mod in history" ui-sref=".module({module: mod.name})">
 			{{mod.name}}@{{mod.version}}
-			<ion-option-button class="button-info button-dark" ng-click="delete(mod.name, mod.version)">Delete</ion-option-button>
+			<ion-option-button class="button-info button-dark" ng-click="deleteItem(mod)">Delete</ion-option-button>
 		</ion-item>
 	</ion-list>
 	<div class="empty-list" ng-if="!history || history.length === 0">Launch a quest to make history.</div>
