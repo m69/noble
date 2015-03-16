@@ -9,7 +9,7 @@
 		{{module.name}}@{{module.version}}:{{modules.length}}
 	</ion-nav-title>
 	</ion-nav-bar>
-  <ion-content>
+  <ion-content class="noble-list">
 	<ion-list>
 		<ion-item ng-repeat="mod in modules" ui-sref=".module({module: mod.name})">
 			{{mod.name}}@{{mod.version}}

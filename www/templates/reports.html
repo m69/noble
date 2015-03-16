@@ -2,7 +2,7 @@
 	<ion-nav-title>
 		<img class="noble-crown" src="img/noble-crown.png">
 	</ion-nav-title>
-  <ion-content>
+  <ion-content class="noble-list">
 	<ion-list can-swipe="true" ng-if="reports.length > 0">
 		<ion-item ng-repeat="report in reports" ng-click="sendEmail(report.name)"->
 			{{report.name}}

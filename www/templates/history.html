@@ -3,8 +3,7 @@
 		<img class="noble-crown" src="img/noble-crown.png">
 	</ion-nav-title>
   <ion-content class="noble-list">
-	<ion-list can-swipe="true" 
-			  ng-if="history.length > 0">
+	<ion-list can-swipe="true" ng-if="history.length > 0">
 		<ion-item ng-repeat="mod in history" ui-sref=".module({module: mod.name})">
 			{{mod.name}}@{{mod.version}}
 			<ion-option-button class="button-info button-dark" ng-click="deleteItem(mod)">Delete</ion-option-button>

@@ -16,6 +16,7 @@ $dark:                            #444 !default;
 */
 
 $assertive: #CD3632;
+$item-assertive-active-bg: $assertive;
 
 // The path for our ionicons font files, relative to the built CSS in www/css
 $ionicons-font-path: "../lib/ionic/fonts" !default;
@@ -134,9 +135,21 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
 .noble-menu .item:first-child {
 	border-top: 0px;
 }
+
+.noble-list .item {
+	font-weight: bold;
+	border-color: $assertive;
+}
+
+.noble-menu .item .item-content.acticated,
+.item.active,
+.item.activated,
+.item-complex.active .item-content,
+.item-complex.activated .item-content,
 .item .item-content.activated {
+	color: #FFF;
+	border-color: #000;
 	background-color: $assertive;
-	color: #fff;
 }
 
 // @media (min-width: 375px) {
