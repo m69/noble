@@ -15,6 +15,11 @@
     "shelljs": "^0.3.0"
   },
   "cordovaPlugins": [
-    "org.apache.cordova.inappbrowser"
+    "org.apache.cordova.inappbrowser",
+    "org.apache.cordova.file-transfer",
+    "org.apache.cordova.file",
+    "de.appplant.cordova.plugin.email-composer@0.8.1",
+    "de.appplant.cordova.plugin.email-composer@0.8.2",
+    "https://github.com/katzer/cordova-plugin-email-composer.git"
   ]
 }

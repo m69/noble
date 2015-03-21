@@ -25,15 +25,6 @@ angular.module('noble.controllers', [])
 		$scope.quest = '';
 	});
 
-	$scope.launchQuest = function(quest) {
-		if(quest !== null || quest !== undefined || quest !== '') {
-			var params = {
-				module: quest
-			}
-			$state.go('app.noble.quest', params);
-		}
-	};
-
 	$scope.searchModule = function(module) {
 		if(module !== null || module !== undefined || module !== '') {
 			var params = {
@@ -45,26 +36,133 @@ angular.module('noble.controllers', [])
 
 })
 
-.controller('QuestCtrl', function($scope, $state, $stateParams, $ionicActionSheet, $ionicNavBarDelegate, $ionicLoading, NpmService, HistoryService) {
-	
+.controller('ModuleCtrl', function($scope, $state, $stateParams, $ionicLoading, $ionicPopup, NobileServer) {
 	$scope.$on('$ionicView.beforeEnter', function() {
 		$ionicLoading.show({
-			template: 'Wise men do not <br>make demands of Kings.'
+			template: 'Standby...'
+		});
+		$scope.getModule($stateParams.module);
+	});
+
+	$scope.getModule = function(module) {
+		NobileServer.getNodeModule(module)
+		.then(function(result) {
+			$scope.module = result;
 		})
+		.catch(function(error) {
+			$ionicLoading.hide();
+			$state.go('^');
+		})
+		.finally(function(result) {
+			$ionicLoading.hide();
+		});
+	};
+
+	$scope.launchQuest = function(params) {
+		$state.go('app.noble.quest', params);
+	};
+
+	$scope.launchBrowser = function(url) {
+		window.open(url,'_blank');
+	};
+})
+
+.controller('QuestCtrl', function($scope, $state, $stateParams, $ionicActionSheet, $ionicNavBarDelegate, $ionicLoading, $ionicPopup, $ionicModal, NobileServer, HistoryService) {
+	$scope.closeModal = function() {
+		$scope.modal.hide();
+	};
+
+	$scope.modal;
+	$ionicModal.fromTemplateUrl('templates/quest-modal.html', {
+		scope: $scope,
+		animation: 'slide-in-up'
+	}).then(function(modal) {
+		$scope.modal = modal;
+	});
+
+
+	$scope.$on('$ionicView.beforeEnter', function() {
 		$scope.module = {};
 		$scope.module.name = $stateParams.module;
 		$scope.module.version = $stateParams.version;
 	});
 
 	$scope.$on('$ionicView.enter', function() {
-		$scope.startQuest($stateParams.module);
+		$scope.getModules($stateParams.module);
+	});
+
+	 //Cleanup the modal when we're done with it!
+	$scope.$on('$destroy', function() {
+		$scope.modal.remove();
 	});
 
 	$scope.startQuest = function(module) {
-		$scope.modules = NpmService.startQuest(module);
+		$scope.modules = NobileServer.startQuest(module);
 		$scope.count = $scope.modules.length;
-		$ionicLoading.hide();
 	};
+
+	$scope.getModules = function(module) {
+		$ionicLoading.show({
+			template: 'Wise men do not <br>make demands of Kings...'
+		});
+
+		NobileServer.getNodeModuleDependencies(module)
+		.then(function(result) {
+			$scope.modules = result.modules;
+			$scope.count = result.stats.resolved;
+			$scope.stats = result.stats;
+			$scope.module.report = result.report;
+		})
+		.finally(function(result) {
+			$ionicLoading.hide();
+			$scope.modal.show();
+		});
+	};
+
+	$scope.actions = function() {
+
+		var actionSheet = $ionicActionSheet.show({
+			buttons: [
+				{ text: 'Download Report' },
+				{ text: 'Refresh Results' }
+			],
+			titleText: 'Quickly Now',
+			cancelText: 'Cancel',
+			cancel: function() {
+				actionSheet();
+			},
+			buttonClicked: function(index) {
+				if(index === 0) {
+
+					NobileServer.getReport($scope.module.report)
+					.then(function(result) {
+						console.log(result);
+
+						$ionicPopup.show({
+							title: 'Report Downloaded',
+							subTitle: 'Would you like to view reports?',
+							buttons: [
+								{ text: 'Cancel' },
+								{
+									text: 'Open',
+									type: 'button-positive',
+									onTap: function(e) {
+										$state.go('app.reports');
+									}
+								}
+							]
+						});
+					})
+					.finally(function(result) {
+						
+					});
+				}else if(index === 1) {
+					$state.go($state.current, {}, {reload: true});
+				}
+				return true;
+			}
+		});
+	}
 
 })
 
@@ -81,30 +179,112 @@ angular.module('noble.controllers', [])
 		});
 	};
 
+	$scope.deleteItem = function(module) {
+		HistoryService.deleteModule(module)
+		.then(function(result) {
+			if(result) {
+				$scope.history = result;
+			}
+		});
+	};
+
 })
 
-.controller('ModuleCtrl', function($scope, $state, $stateParams, NpmService) {
+.controller('ReportsCtrl', function($scope, HistoryService, EmailService) {
+
 	$scope.$on('$ionicView.beforeEnter', function() {
-		//$scope.getModule($stateParams.id);
-		$scope.getModule($stateParams.module);
+		$scope.getReports();
 	});
 
-	$scope.getModule = function(module) {
-		NpmService.getNodeModule(module)
-			.then(function(result) {
-				$scope.module = result;
-			});
+	$scope.getReports = function() {
+		HistoryService.getReports()
+		.then(function(result) {
+			$scope.reports = result;
+		});
 	};
 
-	$scope.launchQuest = function(params) {
-		$state.go('app.noble.quest', params);
+	$scope.sendEmail = function(report) {
+		EmailService.sendEmail(report);
 	};
 
-	$scope.launchBrowser = function(url) {
-		window.open(url,'_blank');
+	$scope.deleteItem = function(module) {
+		HistoryService.deleteReport(module)
+		.then(function(result) {
+			if(result) {
+				$scope.reports = result;
+			}
+		});
 	};
+
 })
 
-.controller('SettingsCtrl', function($scope) {
+.controller('SettingsCtrl', function($scope, HistoryService, $ionicPopup, Settings) {
 
+	$scope.$on('$ionicView.loaded', function() {
+		Settings.load();
+	});
+
+	$scope.$on('$ionicView.beforeEnter', function() {
+		$scope.getSettings();
+	});
+
+	$scope.getSettings = function() {
+		$scope.nobleSettings = [
+			{
+				text: 'Cache Requests',
+				checked: true
+			},
+			{
+				text: 'Vulnerability Scan',
+				checked: true
+			}
+		];
+
+		$scope.clearData = [
+			{
+				text: 'Clear History',
+				checked: false,
+				tap: $scope.clearHistory
+			},
+			{
+				text: 'Delete Reports',
+				checked: false,
+				tap: $scope.deleteReports
+			}
+		];
+	};
+
+	$scope.showPopup = function(title) {
+		$ionicPopup.show({
+			title: title,
+			buttons: [{
+				text: 'OK',
+				type: 'button-assertive'
+			}]
+		});
+	};
+
+	$scope.clearHistory = function() {
+		HistoryService.clearHistory()
+		.then(function(result) {
+			if(result) {
+				$scope.showPopup('History Cleared');
+			}
+		})
+		.finally(function() {
+			
+		});
+	};
+
+	$scope.deleteReports = function() {
+		HistoryService.deleteReports()
+		.then(function(result) {
+			if(result) {
+				$scope.showPopup('Reports Deleted');
+			}
+		})
+		.finally(function() {
+
+		});
+	};
 });

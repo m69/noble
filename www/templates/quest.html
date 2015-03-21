@@ -3,16 +3,16 @@
 		<ion-nav-back-button>
 		</ion-nav-back-button>
 		<ion-nav-buttons side="secondary">
-			<button class="button button-icon icon ion-share" ng-click="export()"></button>
+			<button class="button button-icon icon ion-share" ng-click="actions()"></button>
 		</ion-nav-buttons>
 		<ion-nav-title>
 		{{module.name}}@{{module.version}}:{{modules.length}}
 	</ion-nav-title>
 	</ion-nav-bar>
-  <ion-content>
+  <ion-content class="noble-list">
 	<ion-list>
-		<ion-item ng-repeat="mod in modules">
-			{{mod.name}} : {{mod.version}} : {{mod.license}}
+		<ion-item ng-repeat="mod in modules" ui-sref=".module({module: mod.name})">
+			{{mod.name}}@{{mod.version}}
 		</ion-item>
 	</ion-list>
   </ion-content>
