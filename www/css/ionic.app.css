@@ -7682,7 +7682,7 @@ a.button {
 
 .noble-list .item {
   font-weight: bold;
-  border-color: #CD3632; }
+  border-color: #ccc; }
 
 .noble-menu .item .item-content.acticated, .item.active, .item.activated, .item-complex.active .item-content, .item-complex.activated .item-content, .item .item-content.activated {
   color: #FFF;
