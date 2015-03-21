@@ -423,10 +423,8 @@ angular.module('noble.services', [])
 
 		angular.forEach(reports, function(value, key){
 			if(value.name === name) {
-				console.log('found: ' + name);
 				file = true;
 			}else{
-				console.log('pushing: ' + value.name);
 				newReports.push(value);
 			}
 		});
@@ -434,12 +432,10 @@ angular.module('noble.services', [])
 		if(file && cordova.plugins) {
 			window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem;
 	    	window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function onInitFs(fs) {
-	    		console.log('onInitFs');
-	    		console.log(name);
+	    		
 	    		fs.root.getFile(name, {}, function(fileEntry) {
-	    			console.log('fileEntry');
+	    			
 	    			fileEntry.remove(function(success){
-	    				console.log('removed');
 	    				$localstorage.setObject(reportsKey, newReports);
 	    				d.resolve(newReports);
 	    			},function errorHandler(e){
@@ -467,7 +463,7 @@ angular.module('noble.services', [])
 
 		angular.forEach(reports, function(value, key){
 			_deleteReport(value.name).then(function(){
-				console.log('Delete Report');
+				console.log('Delete Report: ' + value.name);
 			});
 		});
 
