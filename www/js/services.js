@@ -1,5 +1,11 @@
 angular.module('noble.services', [])
 
+.value("Configuration", {
+	nobleServer: 'http://64.49.237.155:6901/',
+	cache: true,
+	scan: true
+})
+
 .factory('NodeModule', [function() {
 	// constructor with class name
 	function NodeModule(config) {
@@ -34,13 +40,9 @@ angular.module('noble.services', [])
 	return NodeModule;
 }])
 
-.factory('Settings', ['$localstorage', function($localstorage) {
+.factory('Settings', ['$localstorage', 'Configuration', function($localstorage, Configuration) {
 	
 	var settingsKey = 'noble-settings';
-
-	var settingsConfig = {
-		server: 'http://64.49.237.155:6901/'
-	}
 
 	var _getSettings = function() {
 		var settings = $localstorage.getObject(settingsKey);
@@ -48,8 +50,7 @@ angular.module('noble.services', [])
 		if(settings){
 			return settings;
 		}else{
-			_setSettings(settingsConfig);
-			return settings;
+			return false;
 		}
 	};
 
@@ -59,16 +60,23 @@ angular.module('noble.services', [])
 		}
 	};
 
+	var _load = function() {
+		_setSettings(Configuration);
+		return _getSettings();
+
+	}
+
 	return {
 		getSettings: _getSettings,
-		setSettings: _setSettings
+		setSettings: _setSettings,
+		load: _load
 	}
 
 }])
 
-.factory('NobileServer', ['$q', '$http', '$localstorage', 'NodeModule', 'HistoryService', function($q, $http, $localstorage, NodeModule, HistoryService) {
+.factory('NobileServer', ['$q', '$http', '$localstorage', 'NodeModule', 'HistoryService', 'Configuration', function($q, $http, $localstorage, NodeModule, HistoryService, Configuration) {
 
-	var nobleServerUrl = 'http://64.49.237.155:6901/';
+	var nobleServerUrl = Configuration.nobleServer;
 	var tree = [];
 
 	var _getNodeModule = function(query, version) {
@@ -450,6 +458,32 @@ angular.module('noble.services', [])
 		return d.promise;
 	};
 
+	var _deleteReports = function() {
+		var reportsKey = 'noble-reports';
+
+		var d = $q.defer();
+
+		var reports = $localstorage.getObject(reportsKey);
+
+		angular.forEach(reports, function(value, key){
+			_deleteReport(value.name).then(function(){
+				console.log('Delete Report');
+			});
+		});
+
+		$localstorage.setObject(reportsKey, []);
+
+		reports = $localstorage.getObject(reportsKey);
+
+		if(reports) {
+			d.resolve(true);
+		}else{
+			d.reject(false);
+		}
+
+		return d.promise;
+	};
+
 	return {
 		getHistory: _getHistory,
 		saveHistory: _saveHistory,
@@ -458,7 +492,8 @@ angular.module('noble.services', [])
 		clearHistory: _clearHistory,
 		getReports: _getReports,
 		getReport: _getReport,
-		deleteReport: _deleteReport
+		deleteReport: _deleteReport,
+		deleteReports: _deleteReports
 	}
 }])
 

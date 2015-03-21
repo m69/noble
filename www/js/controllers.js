@@ -218,6 +218,73 @@ angular.module('noble.controllers', [])
 
 })
 
-.controller('SettingsCtrl', function($scope) {
+.controller('SettingsCtrl', function($scope, HistoryService, $ionicPopup, Settings) {
 
+	$scope.$on('$ionicView.loaded', function() {
+		Settings.load();
+	});
+
+	$scope.$on('$ionicView.beforeEnter', function() {
+		$scope.getSettings();
+	});
+
+	$scope.getSettings = function() {
+		$scope.nobleSettings = [
+			{
+				text: 'Cache Requests',
+				checked: true
+			},
+			{
+				text: 'Vulnerability Scan',
+				checked: true
+			}
+		];
+
+		$scope.clearData = [
+			{
+				text: 'Clear History',
+				checked: false,
+				tap: $scope.clearHistory
+			},
+			{
+				text: 'Delete Reports',
+				checked: false,
+				tap: $scope.deleteReports
+			}
+		];
+	};
+
+	$scope.showPopup = function(title) {
+		$ionicPopup.show({
+			title: title,
+			buttons: [{
+				text: 'OK',
+				type: 'button-assertive'
+			}]
+		});
+	};
+
+	$scope.clearHistory = function() {
+		HistoryService.clearHistory()
+		.then(function(result) {
+			if(result) {
+				$scope.showPopup('History Cleared');
+			}
+		})
+		.finally(function() {
+			
+		});
+	};
+
+	$scope.deleteReports = function() {
+		HistoryService.deleteReports()
+		.then(function(result) {
+			if(result) {
+				$scope.showPopup('Reports Deleted');
+			}
+		})
+		.finally(function() {
+
+		});
+	};
 });

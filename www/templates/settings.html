@@ -2,7 +2,23 @@
 	<ion-nav-title>
 		<img class="noble-crown" src="img/noble-crown.png">
 	</ion-nav-title>
-  <ion-content>
-    
-  </ion-content>
+	<ion-content scroll="false">
+		<ion-list>
+<!-- 			<ion-item class="item-divider">Noble Settings</ion-item>
+			<ion-toggle 
+				ng-repeat="s in nobleSettings" 
+				toggle-class="toggle-assertive"
+				on-tap="s.tap()">
+					{{s.text}}
+			</ion-toggle> -->
+
+			<ion-item class="item-divider">Clear Data</ion-item>
+			<ion-checkbox 
+				ng-repeat="c in clearData"
+				toggle-class="toggle-assertive"
+				on-tap="c.tap()">
+					{{c.text}}
+			</ion-checkbox>
+		</ion-list>
+	</ion-content>
 </ion-view>
