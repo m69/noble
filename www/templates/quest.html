@@ -11,7 +11,7 @@
 	</ion-nav-bar>
   <ion-content class="noble-list">
 	<ion-list>
-		<ion-item ng-repeat="mod in modules" ui-sref=".module({module: mod.name})">
+		<ion-item ng-repeat="mod in modules" ui-sref=".module({module: mod.name + '@' + mod.version})">
 			{{mod.name}}@{{mod.version}}
 		</ion-item>
 	</ion-list>

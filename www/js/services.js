@@ -21,7 +21,7 @@ angular.module('noble.services', [])
 		this.license = config.license || null;
 		this.dependencies = config.dependencies || null;
 		this.bugs = config.bugs || null;
-		this._id = config._id || null;
+		this._id = config._id || this.name + '@' + this.version;
 		this.npmVersion = config._npmVersion || null;
 		this.nodeVersion = config._nodeVersion || null;
 		this.maintainers = config.maintainers || null;
@@ -79,7 +79,7 @@ angular.module('noble.services', [])
 	var nobleServerUrl = Configuration.nobleServer;
 	var tree = [];
 
-	var _getNodeModule = function(query, version) {
+	var _getNodeModule = function(query) {
 
 		var d = $q.defer();
 
@@ -87,7 +87,18 @@ angular.module('noble.services', [])
 			d.reject('No Query');
 		}else{
 
-			var module = HistoryService.getModule(query);
+			var module = null;
+			var modName = null;
+			var modVersion = 'latest';
+
+			if(query.indexOf('@') !== -1) {
+				// clean up the input
+				modName = query.toString().toLowerCase().trim().substring(0, query.indexOf('@'));
+				modVersion = query.substring(query.lastIndexOf('@') + 1, query.length);
+				module = HistoryService.getModule(modName, modVersion);
+			}else{
+				modName = query.toString().toLowerCase().trim();
+			}
 
 			if(module) {
 				d.resolve(module);
@@ -95,9 +106,9 @@ angular.module('noble.services', [])
 
 				$http({
 					method: 'JSONP',
-					url: nobleServerUrl + 'retrieve/' + query.toString().toLowerCase(),
+					url: nobleServerUrl + 'retrieve/' + modName,
 					params: {
-						version: version || 'latest',
+						version: modVersion,
 						callback: 'JSON_CALLBACK'
 					}
 				})
@@ -117,7 +128,7 @@ angular.module('noble.services', [])
 		return d.promise;
 	};
 
-	var _getNodeModuleDependencies = function(query, version) {
+	var _getNodeModuleDependencies = function(query) {
 
 		var d = $q.defer();
 
@@ -125,12 +136,25 @@ angular.module('noble.services', [])
 			d.reject('No Query');
 		}else{
 
+			var module = null;
+			var modName = null;
+			var modVersion = 'latest';
+
+			if(query.indexOf('@') !== -1) {
+				// clean up the input
+				modName = query.toString().toLowerCase().trim().substring(0, query.indexOf('@'));
+				modVersion = query.substring(query.lastIndexOf('@') + 1, query.length);
+				module = HistoryService.getModule(modName, modVersion);
+			}else{
+				modName = query.toString().toLowerCase().trim();
+			}
+
 			$http({
 				method: 'JSONP',
-				url: nobleServerUrl + 'resolve/' + query.toString().toLowerCase(),
+				url: nobleServerUrl + 'resolve/' + modName,
 				cache: true,
 				params: {
-					version: version || 'latest',
+					version: modVersion,
 					callback: 'JSON_CALLBACK'
 				}
 			})
@@ -329,13 +353,13 @@ angular.module('noble.services', [])
 		return d.promise;
 	};
 
-	var _getModule = function(name) {
+	var _getModule = function(name, version) {
 
 		var history = $localstorage.getObject(nobleStorageKey);
 		var module = false
 
 		angular.forEach(history, function(value, key) {
-			if(value.name === name){
+			if(value.name === name && value.version === version){
 				module = value;
 			}
 		});

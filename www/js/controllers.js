@@ -88,7 +88,7 @@ angular.module('noble.controllers', [])
 	});
 
 	$scope.$on('$ionicView.enter', function() {
-		$scope.getModules($stateParams.module);
+		$scope.getModules($stateParams.module + '@' + $stateParams.version);
 	});
 
 	 //Cleanup the modal when we're done with it!
