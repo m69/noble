@@ -1,7 +1,7 @@
 angular.module('noble.services', [])
 
 .value("Configuration", {
-	nobleServer: 'http://64.49.237.155:6901/',
+	nobleServer: 'http://noble.report:6901/',
 	cache: true,
 	scan: true
 })
