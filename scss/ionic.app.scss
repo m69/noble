@@ -78,6 +78,23 @@ $ionicons-font-path: "../lib/ionic/fonts" !default;
 		text-align: center;
 	}
 
+	/* iPad Portrait and Landscape */
+	@media only screen
+	and (min-device-width: 768px)
+	and (max-device-width: 1024px)
+	and (-webkit-min-device-pixel-ratio: 1) {
+
+	  & .item-complex .item-content {
+		padding-top: 7%;
+		padding-bottom: 7%;
+	  }
+
+	  & .item-complex.item-icon-left .item-content {
+		text-align: left;
+	  }
+
+	}
+
 	.item-icon-left .icon {
 		// font-size: 4em;
 		// left: 6%;
