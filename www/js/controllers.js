@@ -3,7 +3,7 @@ angular.module('noble.controllers', [])
 .controller('MenuCtrl', function($scope) {
 
 })
-.controller('NobleCtrl', ['$scope', '$state', 'NobileServer', '$ionicLoading', '$ionicPopup', function($scope, $state, NobileServer, $ionicLoading, $ionicPopup) {
+.controller('NobleCtrl', ['$scope', '$state', 'NobleServer', '$ionicLoading', '$ionicPopup', function($scope, $state, NobleServer, $ionicLoading, $ionicPopup) {
 
 	$scope.messages = [
 		{name: 'Journey Well'},
@@ -26,6 +26,7 @@ angular.module('noble.controllers', [])
 	});
 
 	$scope.searchModule = function(module) {
+
 		if(module !== null || module !== undefined || module !== '') {
 			var params = {
 				module: module
@@ -35,9 +36,9 @@ angular.module('noble.controllers', [])
 				template: 'Searching...'
 			});
 
-			NobileServer.getNodeModule(module)
+			NobleServer.getNodeModule(module)
 				.then(function(result) {
-					$state.go('app.noble.module', params);
+					$state.go('app.noble.module', {module: module});
 				}, function(error) {
 					$ionicPopup.alert({
 						title: 'Opps!',
@@ -56,13 +57,13 @@ angular.module('noble.controllers', [])
 
 }])
 
-.controller('ModuleCtrl', function($scope, $state, $stateParams, $ionicLoading, $ionicPopup, NobileServer) {
+.controller('ModuleCtrl', ['$scope', '$state', '$stateParams', '$ionicLoading', '$ionicPopup', 'NobleServer', function($scope, $state, $stateParams, $ionicLoading, $ionicPopup, NobleServer) {
 	$scope.$on('$ionicView.beforeEnter', function() {
 		$scope.getModule($stateParams.module);
 	});
 
 	$scope.getModule = function(module) {
-		NobileServer.getNodeModule(module)
+		NobleServer.getNodeModule(module)
 		.then(function(result) {
 			$scope.module = result;
 		})
@@ -72,21 +73,31 @@ angular.module('noble.controllers', [])
 	};
 
 	$scope.launchQuest = function(params) {
-		$state.go('app.noble.quest', params);
+
+		$ionicLoading.show({
+			template: '<div class="quest-loading"><p>Standby...<br>This may take a few moments.</p></div>'
+		});
+
+		NobleServer.getNodeModuleDependencies(params.module + '@' + params.version)
+			.then(function(result) {
+				$state.go('app.noble.quest', params);
+			})
+			.finally(function(result) {
+				$ionicLoading.hide();
+			});
 	};
 
 	$scope.launchBrowser = function(url) {
 		window.open(url,'_blank');
 	};
-})
+}])
 
-.controller('QuestCtrl', function($scope, $state, $stateParams, $ionicActionSheet, $ionicNavBarDelegate, $ionicLoading, $ionicPopup, $ionicModal, NobileServer, HistoryService) {
+.controller('QuestCtrl', ['$scope', '$state', '$stateParams', '$ionicActionSheet', '$ionicNavBarDelegate', '$ionicLoading', '$ionicPopup', '$ionicModal', 'NobleServer', 'HistoryService', function($scope, $state, $stateParams, $ionicActionSheet, $ionicNavBarDelegate, $ionicLoading, $ionicPopup, $ionicModal, NobleServer, HistoryService) {
 	$scope.closeModal = function() {
 		$scope.modal.hide();
 	};
 
-	$scope.modal;
-	$ionicModal.fromTemplateUrl('templates/quest-modal.html', {
+	$scope.modal = $ionicModal.fromTemplateUrl('templates/quest-modal.html', {
 		scope: $scope,
 		animation: 'slide-in-up'
 	}).then(function(modal) {
@@ -110,17 +121,13 @@ angular.module('noble.controllers', [])
 	});
 
 	$scope.startQuest = function(module) {
-		$scope.modules = NobileServer.startQuest(module);
+		$scope.modules = NobleServer.startQuest(module);
 		$scope.count = $scope.modules.length;
 	};
 
 	$scope.getModules = function(module) {
-		$ionicLoading.show({
-			template: 'Wise men do not <br>make demands of Kings...'
-		});
 
-		// TODO error control
-		NobileServer.getNodeModuleDependencies(module)
+		NobleServer.getNodeModuleDependencies(module)
 		.then(function(result) {
 			$scope.modules = result.modules;
 			$scope.count = result.stats.resolved;
@@ -128,9 +135,32 @@ angular.module('noble.controllers', [])
 			$scope.module.report = result.report;
 		})
 		.finally(function(result) {
-			$ionicLoading.hide();
 			$scope.modal.show();
 		});
+	};
+
+	$scope.getModule = function(module) {
+
+		$ionicLoading.show({
+			template: 'Searching...'
+		});
+
+		NobleServer.getNodeModule(module)
+			.then(function(result) {
+				$state.go('app.noble.module', {module: module});
+			}, function(error) {
+				$ionicPopup.alert({
+					title: 'Opps!',
+					template: 'Looks like it wasn\'t found :(',
+					buttons: [{
+						text: 'Bummer',
+						type: 'button-assertive'
+					}]
+				});
+			})
+			.finally(function(result) {
+				$ionicLoading.hide();
+			});
 	};
 
 	$scope.actions = function() {
@@ -148,7 +178,7 @@ angular.module('noble.controllers', [])
 			buttonClicked: function(index) {
 				if(index === 0) {
 
-					NobileServer.getReport($scope.module.report)
+					NobleServer.getReport($scope.module.report)
 					.then(function(result) {
 						console.log(result);
 
@@ -178,9 +208,9 @@ angular.module('noble.controllers', [])
 		});
 	}
 
-})
+}])
 
-.controller('HistoryCtrl', function($scope, HistoryService) {
+.controller('HistoryCtrl', ['$scope', 'HistoryService', function($scope, HistoryService) {
 	
 	$scope.$on('$ionicView.beforeEnter', function() {
 		$scope.getHistory();
@@ -202,9 +232,9 @@ angular.module('noble.controllers', [])
 		});
 	};
 
-})
+}])
 
-.controller('ReportsCtrl', function($scope, HistoryService, EmailService) {
+.controller('ReportsCtrl', ['$scope', 'HistoryService', 'EmailService', function($scope, HistoryService, EmailService) {
 
 	$scope.$on('$ionicView.beforeEnter', function() {
 		$scope.getReports();
@@ -230,9 +260,9 @@ angular.module('noble.controllers', [])
 		});
 	};
 
-})
+}])
 
-.controller('SettingsCtrl', function($scope, HistoryService, $ionicPopup, Settings) {
+.controller('SettingsCtrl', ['$scope', 'HistoryService', '$ionicPopup', 'Settings', function($scope, HistoryService, $ionicPopup, Settings) {
 
 	$scope.$on('$ionicView.loaded', function() {
 		Settings.load();
@@ -301,4 +331,4 @@ angular.module('noble.controllers', [])
 
 		});
 	};
-});
+}]);

@@ -7774,7 +7774,7 @@ a.button {
   background-color: #202020; }
 
 .modal .noble-content {
-  padding: 50px 20px 20px 20px;
+  padding: 40px 20px 20px 20px;
   color: #FFF; }
 
 .modal .noble-content h1 {
@@ -7798,4 +7798,4 @@ a.button {
   font-size: 2em; }
 
 .modal .button {
-  margin-top: 40px; }
+  margin-top: 30px; }

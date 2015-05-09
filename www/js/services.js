@@ -74,13 +74,12 @@ angular.module('noble.services', [])
 
 }])
 
-.factory('NobileServer', ['$q', '$http', '$localstorage', 'NodeModule', 'HistoryService', 'Configuration', function($q, $http, $localstorage, NodeModule, HistoryService, Configuration) {
+.factory('NobleServer', ['$q', '$http', '$localstorage', 'NodeModule', 'HistoryService', 'Configuration', function($q, $http, $localstorage, NodeModule, HistoryService, Configuration) {
 
 	var nobleServerUrl = Configuration.nobleServer;
 	var tree = [];
 
 	var _getNodeModule = function(query) {
-
 		var d = $q.defer();
 
 		if(!query) {
@@ -95,7 +94,6 @@ angular.module('noble.services', [])
 				// clean up the input
 				modName = query.toString().toLowerCase().trim().substring(0, query.indexOf('@'));
 				modVersion = query.substring(query.lastIndexOf('@') + 1, query.length);
-				//module = HistoryService.getModule(modName, modVersion);
 			}else{
 				modName = query.toString().toLowerCase().trim();
 			}
@@ -109,6 +107,7 @@ angular.module('noble.services', [])
 				$http({
 					method: 'JSONP',
 					url: nobleServerUrl + 'retrieve/' + modName,
+					cache: true,
 					params: {
 						version: modVersion,
 						callback: 'JSON_CALLBACK'
@@ -150,10 +149,11 @@ angular.module('noble.services', [])
 				// clean up the input
 				modName = query.toString().toLowerCase().trim().substring(0, query.indexOf('@'));
 				modVersion = query.substring(query.lastIndexOf('@') + 1, query.length);
-				module = HistoryService.getModule(modName, modVersion);
 			}else{
 				modName = query.toString().toLowerCase().trim();
 			}
+
+			module = HistoryService.getModule(modName, modVersion);
 
 			$http({
 				method: 'JSONP',
@@ -333,7 +333,9 @@ angular.module('noble.services', [])
 		var newHistory = [];
 		if(history) {
 			angular.forEach(history, function(value, key) {
-				newHistory.push(value);
+				if(value._id !== module._id) {
+					newHistory.push(value);
+				}
 			});
 		}
 
