@@ -95,10 +95,12 @@ angular.module('noble.services', [])
 				// clean up the input
 				modName = query.toString().toLowerCase().trim().substring(0, query.indexOf('@'));
 				modVersion = query.substring(query.lastIndexOf('@') + 1, query.length);
-				module = HistoryService.getModule(modName, modVersion);
+				//module = HistoryService.getModule(modName, modVersion);
 			}else{
 				modName = query.toString().toLowerCase().trim();
 			}
+
+			module = HistoryService.getModule(modName, modVersion);
 
 			if(module) {
 				d.resolve(module);
@@ -113,11 +115,15 @@ angular.module('noble.services', [])
 					}
 				})
 				.success(function(data) {
-					var nodeModule = new NodeModule(data);
+					if(data) {
+						var nodeModule = new NodeModule(data);
 
-					HistoryService.saveHistory(nodeModule);
+						HistoryService.saveHistory(nodeModule);
 
-					d.resolve(nodeModule);
+						d.resolve(nodeModule);
+					}else{
+						d.reject('Error or not found');
+					}
 				})
 				.error(function(reason) {
 					d.reject(reason);

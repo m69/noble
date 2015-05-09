@@ -3,7 +3,7 @@ angular.module('noble.controllers', [])
 .controller('MenuCtrl', function($scope) {
 
 })
-.controller('NobleCtrl', function($scope, $state) {
+.controller('NobleCtrl', ['$scope', '$state', 'NobileServer', '$ionicLoading', '$ionicPopup', function($scope, $state, NobileServer, $ionicLoading, $ionicPopup) {
 
 	$scope.messages = [
 		{name: 'Journey Well'},
@@ -29,18 +29,35 @@ angular.module('noble.controllers', [])
 		if(module !== null || module !== undefined || module !== '') {
 			var params = {
 				module: module
-			}
-			$state.go('app.noble.module', params);
+			};
+
+			$ionicLoading.show({
+				template: 'Searching...'
+			});
+
+			NobileServer.getNodeModule(module)
+				.then(function(result) {
+					$state.go('app.noble.module', params);
+				}, function(error) {
+					$ionicPopup.alert({
+						title: 'Opps!',
+						template: 'Looks like it wasn\'t found :(',
+						buttons: [{
+							text: 'Bummer',
+							type: 'button-assertive'
+						}]
+					});
+				}).finally(function(result) {
+					$ionicLoading.hide();
+				});
+
 		}
 	};
 
-})
+}])
 
 .controller('ModuleCtrl', function($scope, $state, $stateParams, $ionicLoading, $ionicPopup, NobileServer) {
 	$scope.$on('$ionicView.beforeEnter', function() {
-		$ionicLoading.show({
-			template: 'Standby...'
-		});
 		$scope.getModule($stateParams.module);
 	});
 
@@ -48,10 +65,6 @@ angular.module('noble.controllers', [])
 		NobileServer.getNodeModule(module)
 		.then(function(result) {
 			$scope.module = result;
-		})
-		.catch(function(error) {
-			$ionicLoading.hide();
-			$state.go('^');
 		})
 		.finally(function(result) {
 			$ionicLoading.hide();
@@ -106,6 +119,7 @@ angular.module('noble.controllers', [])
 			template: 'Wise men do not <br>make demands of Kings...'
 		});
 
+		// TODO error control
 		NobileServer.getNodeModuleDependencies(module)
 		.then(function(result) {
 			$scope.modules = result.modules;
